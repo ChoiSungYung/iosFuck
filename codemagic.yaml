@@ -14,11 +14,11 @@ workflows:
         script: |
           set -e # exit on first failed command
 
-          echo ${CERTIFICATE?} | base64 --decode > /tmp/certificate.p12
+          echo BookDosirockM | base64 --decode > /tmp/bookdosirockm.p12
           keychain initialize
           keychain add-certificates \
-              --certificate /tmp/certificate.p12 \
-              --certificate-password ${CERTIFICATE_PASSWORD?}
+              --certificate /tmp/bookdosirockm.p12 \
+              --certificate-password "s3FqqUup"
       - name: Increment build number
         script: agvtool new-version -all $BUILD_NUMBER
       - name: Set up code signing settings on Xcode project
