@@ -31,7 +31,7 @@ workflows:
       - build/ios/ipa/*.ipa
 
     environment:
-      xcode: 13.1
+      xcode: 13.7
 
     publishing:
       app_store_connect:
