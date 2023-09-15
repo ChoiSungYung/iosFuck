@@ -14,10 +14,10 @@ workflows:
         script: |
           set -e # exit on first failed command
 
-          echo BookDosirockM | base64 --decode > /tmp/bookdosirockm.p12
+          echo BookDosirockM | base64 --decode > /tmp/certificate.p12
           keychain initialize
           keychain add-certificates \
-              --certificate /tmp/bookdosirockm.p12 \
+              --certificate /tmp/certificate.p12 \
               --certificate-password "s3FqqUup"
       - name: Increment build number
         script: agvtool new-version -all $BUILD_NUMBER
