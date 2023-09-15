@@ -1,3 +1,80 @@
+
+workflows:
+  my-workflow:
+    scripts:
+      - name: say hello
+        script: echo "Hello Codemagician!"
+      - name: Add provisioning profiles
+        script: |
+          set -e # exit on first failed command
+
+          PROFILES_HOME="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$PROFILES_HOME"
+          echo ${PROVISIONING_PROFILE?} | base64 --decode > "$PROFILES_HOME/$(uuidgen).mobileprovision"
+      - name: Add signing certificate
+        script: |
+          set -e # exit on first failed command
+
+          echo ${CERTIFICATE?} | base64 --decode > /tmp/certificate.p12
+          keychain initialize
+          keychain add-certificates \
+              --certificate /tmp/certificate.p12 \
+              --certificate-password ${CERTIFICATE_PASSWORD?}
+      - name: Increment build number
+        script: agvtool new-version -all $BUILD_NUMBER
+      - name: Set up code signing settings on Xcode project
+        script: xcode-project use-profiles
+      - name: Build ipa for distribution
+        script: xcode-project build-ipa \
+                    --workspace "${XCODE_WORKSPACE?}" \
+                    --scheme "${XCODE_SCHEME?}"
+    artifacts:
+      - build/ios/ipa/*.ipa
+
+    environment:
+      xcode: 14.0
+
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        submit_to_testflight: true
+        beta_groups:
+          - Beta Testers
+
+
+ChatGPT
+
+2 / 2
+
+이 스크립트는 CI/CD(Continuous Integration / Continuous Deployment)를 위한 워크플로우 설정처럼 보입니다. 특히, iOS 앱의 빌드와 배포를 위한 작업을 자동화하려는 것으로 보입니다.
+
+여기에 제시된 내용을 간략하게 해석해 드리겠습니다:
+
+환경 설정: Xcode 14.0 버전을 사용하여 빌드합니다.
+스크립트 실행:
+"Hello Codemagician!"이라는 메시지를 출력합니다.
+제공된 프로비저닝 프로파일을 디코딩하여 적절한 위치에 저장합니다.
+제공된 서명 인증서를 디코딩하고 키 체인에 추가합니다.
+빌드 번호를 증가시킵니다.
+Xcode 프로젝트의 코드 서명 설정을 업데이트합니다.
+지정된 워크스페이스와 스키마를 사용하여 ipa 파일을 빌드합니다.
+아티팩트 저장: 빌드된 .ipa 파일을 아티팩트로 저장합니다.
+배포:
+App Store Connect에 API 키를 사용하여 앱을 업로드합니다.
+앱을 TestFlight에 제출하고 "Beta Testers" 그룹에 배포합니다.
+워크플로우 설정이 정상적으로 작동하려면, 필요한 환경 변수(예: PROVISIONING_PROFILE, CERTIFICATE, CERTIFICATE_PASSWORD 등)가 제대로 설정되어 있어야 합니다. 또한, 사용하는 CI/CD 플랫폼에 따라 명령어나 구성 방법이 약간 다를 수 있으므로 플랫폼의 공식 문서나 가이드를 참조하는 것이 좋습니다.
+
+
+
+
+User
+PROVISIONING_PROFILE = BookDosirockM 
+CERTIFICATE = bookdosirockm.p12
+CERTIFICATE_PASSWORD = s3FqqUup
+환경변수는 위와 같아. 아래에 반영해서 만들어줘
+ 
 workflows:
   ios-workflow:
     scripts:
@@ -9,16 +86,16 @@ workflows:
 
           PROFILES_HOME="$HOME/Library/MobileDevice/Provisioning Profiles"
           mkdir -p "$PROFILES_HOME"
-          echo "BookDosirockM" | base64 --decode > "$PROFILES_HOME/$(uuidgen).mobileprovision"
+          echo ${PROVISIONING_PROFILE?} | base64 --decode > "$PROFILES_HOME/$(uuidgen).mobileprovision"
       - name: Add signing certificate
         script: |
-          set -e # exit on first failed command
+          set -e # exit on first failed comㅁmand
 
-          echo "bookdosirockm.p12" | base64 --decode > /tmp/certificate.p12
+          echo ${CERTIFICATE?} | base64 --decode > /tmp/certificate.p12
           keychain initialize
           keychain add-certificates \
               --certificate /tmp/certificate.p12 \
-              --certificate-password "s3FqqUup"
+              --certificate-password ${CERTIFICATE_PASSWORD?}
       - name: Increment build number
         script: agvtool new-version -all $BUILD_NUMBER
       - name: Set up code signing settings on Xcode project
