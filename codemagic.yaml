@@ -1,7 +1,7 @@
 workflows:
-  my-workflow:
+  ios-workflow:
     scripts:
-      - name: say hello
+      - name: iOS Workflow 
         script: echo "Hello Codemagician!"
       - name: Add provisioning profiles
         script: |
@@ -9,16 +9,16 @@ workflows:
 
           PROFILES_HOME="$HOME/Library/MobileDevice/Provisioning Profiles"
           mkdir -p "$PROFILES_HOME"
-          echo ${PROVISIONING_PROFILE?} | base64 --decode > "$PROFILES_HOME/$(uuidgen).mobileprovision"
+          echo "BookDosirockM" | base64 --decode > "$PROFILES_HOME/$(uuidgen).mobileprovision"
       - name: Add signing certificate
         script: |
           set -e # exit on first failed command
 
-          echo ${CERTIFICATE?} | base64 --decode > /tmp/certificate.p12
+          echo "bookdosirockm.p12" | base64 --decode > /tmp/certificate.p12
           keychain initialize
           keychain add-certificates \
               --certificate /tmp/certificate.p12 \
-              --certificate-password ${CERTIFICATE_PASSWORD?}
+              --certificate-password "s3FqqUup"
       - name: Increment build number
         script: agvtool new-version -all $BUILD_NUMBER
       - name: Set up code signing settings on Xcode project
@@ -32,6 +32,9 @@ workflows:
 
     environment:
       xcode: 14.0
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.bookcosmos.BookDosirockM
 
     publishing:
       app_store_connect:
